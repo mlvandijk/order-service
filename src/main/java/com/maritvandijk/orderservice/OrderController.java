@@ -1,10 +1,7 @@
 package com.maritvandijk.orderservice;
 
 import com.maritvandijk.orderservice.model.CustomerOrder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,6 +18,11 @@ class OrderController {
     @GetMapping("/orders")
     List<CustomerOrder> getOrders() {
         return orderService.getOrders();
+    }
+
+    @GetMapping("/orders/{orderId}")
+    CustomerOrder getOrderByOrderId(@PathVariable String orderId) {
+        return orderService.getOrderByOrderId(orderId);
     }
 
     @PostMapping("/orders")

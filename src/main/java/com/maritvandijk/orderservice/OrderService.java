@@ -15,6 +15,10 @@ class OrderService {
         this.orderRepository = orderRepository;
     }
 
+    public CustomerOrder getOrderByOrderId(String orderId) {
+        return orderRepository.findOrderByOrderId(orderId);
+    }
+
     public List<CustomerOrder> getOrders() {
         return (List<CustomerOrder>) orderRepository.findAll();
     }
