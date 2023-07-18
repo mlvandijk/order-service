@@ -26,6 +26,7 @@ class OrderService {
 
     public void registerOrder(CustomerOrder order) {
         CustomerOrder updatedOrder = checkOrder(order);
+        boolean validPhoneNumber = isValidPhoneNumber(order.getCustomer().getBillingAddress().getPhoneNumber());
         orderRepository.save(updatedOrder);
     }
 
@@ -41,5 +42,13 @@ class OrderService {
             });
         }
         return order;
+    }
+
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        String validPhoneNumber = "^[+]?[(]?[0-9]{3}[)]?[-\\s.]?[0-9]{3}[-\\s.]?[0-9]{4,6}$";
+        if (phoneNumber == null) {
+            return true;
+        }
+        return phoneNumber.matches(validPhoneNumber);
     }
 }
