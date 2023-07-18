@@ -59,6 +59,10 @@ public class OrderItem {
         return cancellations;
     }
 
+    public void setCancellations(List<Cancellation> cancellations) {
+        this.cancellations = cancellations;
+    }
+
     @Override
     public String toString() {
         return "OrderItem{" +

@@ -11,8 +11,7 @@ public class Cancellation {
     private CancellationReason cancellationReason;
     private int quantityCancelled;
 
-    public Cancellation(Long id, CancellationReason cancellationReason, int quantityCancelled) {
-        this.id = id;
+    public Cancellation(CancellationReason cancellationReason, int quantityCancelled) {
         this.cancellationReason = cancellationReason;
         this.quantityCancelled = quantityCancelled;
     }
