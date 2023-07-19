@@ -33,6 +33,63 @@ class OrderServiceTest {
     }
 
     @Test
+    void shouldRegisterOrderFromJson() {
+        String orderJSon = """
+                {
+                  "id": 1,
+                  "orderId": "ABC12345678",
+                  "customer": {
+                    "customerId": 1,
+                    "name": "Customer Name",
+                    "billingAddress": {
+                      "id": 1,
+                      "streetName": "Street name",
+                      "houseNumber": "1",
+                      "postCode": "1000 AA",
+                      "city": "Amsterdam",
+                      "phoneNumber": null
+                    }
+                  },
+                  "shippingAddress": {
+                    "id": 1,
+                    "streetName": "Street name",
+                    "houseNumber": "1",
+                    "postCode": "1000 AA",
+                    "city": "Amsterdam",
+                    "phoneNumber": null
+                  },
+                  "orderItems": [
+                    {
+                      "id": 1,
+                      "orderItemId": "11111111",
+                      "productTitle": "A Great Book",
+                      "author": "Amazing Author",
+                      "numberOfItems": 1,
+                      "price": {
+                        "id": 1,
+                        "amount": 11.99,
+                        "currency": "EUR"
+                      },
+                      "productType": "BOOK",
+                      "cancellations": []
+                    }
+                  ],
+                  "paymentInformation": {
+                    "id": 1,
+                    "paymentMethod": "CREDIT CARD",
+                    "paymentAmount": {
+                      "id": 1,
+                      "amount": 11.99,
+                      "currency": "EUR"
+                    },
+                    "paymentTransactionId": "1212121212",
+                    "printInvoice": true,
+                    "paymentStatus": "PAID"
+                  }
+                }""";
+    }
+
+    @Test
     void shouldRegisterPaidOrderWithoutCancellations() {
         String price = "39.29";
         CustomerOrder defaultOrder = getDefaultOrder(price);
