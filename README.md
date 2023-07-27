@@ -5,7 +5,7 @@ This is a [Spring Boot](https://spring.io/) application.
 
 # Build
 We use [Maven](https://maven.apache.org/) to build our project.
-From the terminal, run `mvn clean verify`.
+From the terminal, run `./mvnw clean verify`.
 
 
 # Test
