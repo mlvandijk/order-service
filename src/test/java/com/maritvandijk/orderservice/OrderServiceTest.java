@@ -35,7 +35,7 @@ class OrderServiceTest {
     @Test
     void shouldRegisterPaidOrderWithoutCancellations() {
         String price = "39.29";
-        CustomerOrder defaultOrder = getDefaultOrder(price);
+        CustomerOrder defaultOrder = getDefaultOrderWithPrice(price);
         ArgumentCaptor<CustomerOrder> captor = ArgumentCaptor.forClass(CustomerOrder.class);
 
         orderService.registerOrder(defaultOrder);
@@ -57,13 +57,6 @@ class OrderServiceTest {
                 getDefaultCustomer(getDefaultAddress()),
                 orderItem,
                 getPaymentInformationFailed(createPrice(price)));
-
-        Cancellation cancellation = new Cancellation(CancellationReason.PAYMENT_FAILED, quantity);
-        OrderItem cancelledItem = new OrderItem(orderItemId, title, quantity, createPrice(price), "BOOK", Collections.singletonList(cancellation));
-        CustomerOrder cancelledOrder = getCustomerOrder(getDefaultAddress(),
-                getDefaultCustomer(getDefaultAddress()),
-                cancelledItem,
-                getPaymentInformationPaidWithCreditCard(createPrice(price)));
 
         orderService.registerOrder(orderPaymentFailed);
 
@@ -92,7 +85,25 @@ class OrderServiceTest {
         Assertions.assertEquals(1, captor.getValue().getOrderItems().get(0).getCancellations().size());
     }
 
-    private static CustomerOrder getDefaultOrder(String price) {
+    @Test
+    void shouldSetInvalidPhoneNumberToNull() {
+        String invalidPhoneNumber = "1234";
+        String orderId = "00000000";
+        Address addressWithInvalidPhoneNumber = new Address("Street name", "1", "1000 AA", "Amsterdam", invalidPhoneNumber);
+        Customer customerWithInvalidPhoneNumber = new Customer(2L, "Invalid PhoneNumber", addressWithInvalidPhoneNumber);
+        OrderItem item = getDefaultOrderItem(createDefaultPrice());
+        PaymentInformation paymentInformation = getPaymentInformationPaidWithCreditCard(createDefaultPrice());
+        CustomerOrder orderWithInvalidPhoneNumber = new CustomerOrder(orderId, customerWithInvalidPhoneNumber, addressWithInvalidPhoneNumber, List.of(item), paymentInformation);
+
+        ArgumentCaptor<CustomerOrder> captor = ArgumentCaptor.forClass(CustomerOrder.class);
+        Assertions.assertEquals(invalidPhoneNumber, orderWithInvalidPhoneNumber.getCustomer().getBillingAddress().getPhoneNumber());
+        orderService.registerOrder(orderWithInvalidPhoneNumber);
+
+        Mockito.verify(orderRepository).save(captor.capture());
+        Assertions.assertNull(captor.getValue().getCustomer().getBillingAddress().getPhoneNumber());
+    }
+
+    private static CustomerOrder getDefaultOrderWithPrice(String price) {
         return getCustomerOrder(getDefaultAddress(),
                 getDefaultCustomer(getDefaultAddress()),
                 getDefaultOrderItem(createPrice(price)),
@@ -117,6 +128,10 @@ class OrderServiceTest {
 
     private static Money createPrice(String price) {
         return new Money(new BigDecimal(price), "EUR");
+    }
+
+    private static Money createDefaultPrice() {
+        return new Money(new BigDecimal("19.99"), "EUR");
     }
 
     private static Customer getDefaultCustomer(Address address) {

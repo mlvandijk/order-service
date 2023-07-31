@@ -25,21 +25,38 @@ class OrderService {
     }
 
     public void registerOrder(CustomerOrder order) {
-        CustomerOrder updatedOrder = checkOrder(order);
+        CustomerOrder updatedOrder = checkAndUpdateOrder(order);
         orderRepository.save(updatedOrder);
     }
 
-    private CustomerOrder checkOrder(CustomerOrder order) {
-        return cancelOrderItemsIfPaymentFailed(order);
+    private CustomerOrder checkAndUpdateOrder(CustomerOrder order) {
+        cancelOrderItemsIfPaymentFailed(order);
+        clearInvalidPhoneNumber(order);
+        return order;
     }
 
-    private static CustomerOrder cancelOrderItemsIfPaymentFailed(CustomerOrder order) {
+    private static void cancelOrderItemsIfPaymentFailed(CustomerOrder order) {
         if (order.getPaymentInformation().getPaymentStatus() == PaymentStatus.FAILED) {
             order.getOrderItems().stream().filter(item -> item.getCancellations().isEmpty()).forEach(item -> {
                 Cancellation cancellation = new Cancellation(CancellationReason.PAYMENT_FAILED, item.getNumberOfItems());
                 item.setCancellations(Collections.singletonList(cancellation));
             });
         }
-        return order;
+    }
+
+    private void clearInvalidPhoneNumber(CustomerOrder order) {
+        boolean isValidPhoneNumber = isValidPhoneNumber(order.getCustomer().getBillingAddress().getPhoneNumber());
+        if (!isValidPhoneNumber) {
+            Address billingAddress = order.getCustomer().getBillingAddress();
+            billingAddress.setPhoneNumber(null);
+        }
+    }
+
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        String validPhoneNumber = "^[+]?[(]?[0-9]{3}[)]?[-\\s.]?[0-9]{3}[-\\s.]?[0-9]{4,6}$";
+        if (phoneNumber == null) {
+            return true;
+        }
+        return phoneNumber.matches(validPhoneNumber);
     }
 }
