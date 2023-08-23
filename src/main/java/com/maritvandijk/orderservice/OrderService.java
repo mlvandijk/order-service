@@ -30,26 +30,28 @@ class OrderService {
     }
 
     private CustomerOrder checkAndUpdateOrder(CustomerOrder order) {
-        cancelOrderItemsIfPaymentFailed(order);
-        clearInvalidPhoneNumber(order);
+        order = cancelOrderItemsIfPaymentFailed(order);
+        order = clearInvalidPhoneNumber(order);
         return order;
     }
 
-    private static void cancelOrderItemsIfPaymentFailed(CustomerOrder order) {
+    private static CustomerOrder cancelOrderItemsIfPaymentFailed(CustomerOrder order) {
         if (order.getPaymentInformation().getPaymentStatus() == PaymentStatus.FAILED) {
             order.getOrderItems().stream().filter(item -> item.getCancellations().isEmpty()).forEach(item -> {
                 Cancellation cancellation = new Cancellation(CancellationReason.PAYMENT_FAILED, item.getNumberOfItems());
                 item.setCancellations(Collections.singletonList(cancellation));
             });
         }
+        return order;
     }
 
-    private void clearInvalidPhoneNumber(CustomerOrder order) {
+    private CustomerOrder clearInvalidPhoneNumber(CustomerOrder order) {
         boolean isValidPhoneNumber = isValidPhoneNumber(order.getCustomer().getBillingAddress().getPhoneNumber());
         if (!isValidPhoneNumber) {
             Address billingAddress = order.getCustomer().getBillingAddress();
             billingAddress.setPhoneNumber(null);
         }
+        return order;
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {
