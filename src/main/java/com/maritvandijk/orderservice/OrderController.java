@@ -15,11 +15,6 @@ class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping("/orders")
-    List<CustomerOrder> getOrders() {
-        return orderService.getOrders();
-    }
-
     @GetMapping("/orders/{orderId}")
     CustomerOrder getOrderByOrderId(@PathVariable String orderId) {
         return orderService.getOrderByOrderId(orderId);
@@ -29,4 +24,10 @@ class OrderController {
     void registerOrder(@RequestBody CustomerOrder order) {
         orderService.registerOrder(order);
     }
+
+    @GetMapping("/customer/{customerId}")
+    List<CustomerOrder> getOrdersForCustomer(@PathVariable Long customerId) {
+        return orderService.getOrdersForCustomer(customerId);
+    }
+
 }

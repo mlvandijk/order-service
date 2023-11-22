@@ -24,14 +24,14 @@ class OrderService {
         return orderRepository.findOrderByOrderId(orderId);
     }
 
-    public List<CustomerOrder> getOrders() {
-        return (List<CustomerOrder>) orderRepository.findAll();
-    }
-
     public void registerOrder(CustomerOrder order) {
         log.info("Registering order " + order.getOrderId());
         CustomerOrder updatedOrder = checkAndUpdateOrder(order);
         orderRepository.save(updatedOrder);
+    }
+
+    public List<CustomerOrder> getOrdersForCustomer(Long customerId) {
+        return orderRepository.findOrdersByCustomer_customerId(customerId);
     }
 
     private CustomerOrder checkAndUpdateOrder(CustomerOrder order) {
