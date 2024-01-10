@@ -1,7 +1,10 @@
 package com.maritvandijk.orderservice;
 
 import com.maritvandijk.orderservice.model.*;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -97,6 +100,23 @@ class OrderServiceTest {
 
         ArgumentCaptor<CustomerOrder> captor = ArgumentCaptor.forClass(CustomerOrder.class);
         Assertions.assertEquals(invalidPhoneNumber, orderWithInvalidPhoneNumber.getCustomer().getBillingAddress().getPhoneNumber());
+        orderService.registerOrder(orderWithInvalidPhoneNumber);
+
+        Mockito.verify(orderRepository).save(captor.capture());
+        Assertions.assertNull(captor.getValue().getCustomer().getBillingAddress().getPhoneNumber());
+    }
+
+    @Test
+    void shouldHandlePhoneNumberIsNull() {
+        String orderId = "00000000";
+        Address addressWithInvalidPhoneNumber = new Address("Street name", "1", "1000 AA", "Amsterdam", null);
+        Customer customerWithInvalidPhoneNumber = new Customer(2L, "Invalid PhoneNumber", addressWithInvalidPhoneNumber);
+        OrderItem item = getDefaultOrderItem(createDefaultPrice());
+        PaymentInformation paymentInformation = getPaymentInformationPaidWithCreditCard(createDefaultPrice());
+        CustomerOrder orderWithInvalidPhoneNumber = new CustomerOrder(orderId, customerWithInvalidPhoneNumber, addressWithInvalidPhoneNumber, List.of(item), paymentInformation);
+
+        ArgumentCaptor<CustomerOrder> captor = ArgumentCaptor.forClass(CustomerOrder.class);
+        Assertions.assertNull(orderWithInvalidPhoneNumber.getCustomer().getBillingAddress().getPhoneNumber());
         orderService.registerOrder(orderWithInvalidPhoneNumber);
 
         Mockito.verify(orderRepository).save(captor.capture());

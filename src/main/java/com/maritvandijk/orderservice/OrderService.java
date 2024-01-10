@@ -35,12 +35,12 @@ class OrderService {
     }
 
     private CustomerOrder checkAndUpdateOrder(CustomerOrder order) {
-        order = cancelOrderItemsIfPaymentFailed(order);
-        order = clearInvalidPhoneNumber(order);
+        cancelOrderItemsIfPaymentFailed(order);
+        clearInvalidPhoneNumber(order);
         return order;
     }
 
-    private static CustomerOrder cancelOrderItemsIfPaymentFailed(CustomerOrder order) {
+    private static void cancelOrderItemsIfPaymentFailed(CustomerOrder order) {
         if (order.getPaymentInformation().getPaymentStatus() == PaymentStatus.FAILED) {
             log.info("Payment failed for order" + order.getOrderId() + ". Cancelling order items.");
             order.getOrderItems().stream().filter(item -> item.getCancellations().isEmpty()).forEach(item -> {
@@ -48,19 +48,17 @@ class OrderService {
                 item.setCancellations(Collections.singletonList(cancellation));
             });
         }
-        return order;
     }
 
-    private CustomerOrder clearInvalidPhoneNumber(CustomerOrder order) {
-        // Check that the number we have is a valid number
-        // If the number is not valid, remove the invalid number
-        boolean isValidPhoneNumber = isValidPhoneNumber(order.getCustomer().getBillingAddress().getPhoneNumber());
-        if (!isValidPhoneNumber) {
-            log.info("Removing invalid phone number" + order.getCustomer().getBillingAddress().getPhoneNumber());
-            Address billingAddress = order.getCustomer().getBillingAddress();
-            billingAddress.setPhoneNumber(null);
+    private void clearInvalidPhoneNumber(CustomerOrder order) {
+        Address billingAddress = order.getCustomer().getBillingAddress();
+        if (billingAddress != null && billingAddress.getPhoneNumber() != null) {
+            boolean isValidPhoneNumber = isValidPhoneNumber(billingAddress.getPhoneNumber());
+            if (!isValidPhoneNumber) {
+                log.info("Removing invalid phone number" + billingAddress.getPhoneNumber());
+                billingAddress.setPhoneNumber(null);
+            }
         }
-        return order;
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {
