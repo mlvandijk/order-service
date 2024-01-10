@@ -16,7 +16,7 @@ class OrderController {
     }
 
     @GetMapping("/orders/{orderId}")
-    CustomerOrder getOrderByOrderId(@PathVariable String orderId) {
+    CustomerOrder getOrderByOrderId(@PathVariable String orderId) throws OrderServiceException {
         return orderService.getOrderByOrderId(orderId);
     }
 

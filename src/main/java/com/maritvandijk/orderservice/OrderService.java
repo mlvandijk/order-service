@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 class OrderService {
@@ -20,8 +21,19 @@ class OrderService {
         this.orderRepository = orderRepository;
     }
 
-    public CustomerOrder getOrderByOrderId(String orderId) {
-        return orderRepository.findOrderByOrderId(orderId);
+    public CustomerOrder getOrderByOrderId(String orderId) throws OrderServiceException {
+        try {
+            Optional<CustomerOrder> optionalOrder = Optional.ofNullable(orderRepository.findOrderByOrderId(orderId));
+
+            if (optionalOrder.isPresent()) {
+                return optionalOrder.get();
+            } else {
+                throw new OrderNotFoundException("Order with id " + orderId + " not found");
+            }
+
+        } catch (Exception e) {
+            throw new OrderServiceException("Error occurred while retrieving order by id", e);
+        }
     }
 
     public void registerOrder(CustomerOrder order) {
